@@ -27,13 +27,13 @@ protected:
     update();
 
     virtual ResumableResult<void>
-    onRMC() {
+    onRMC(RMC rmc) {
         RF_BEGIN();
         RF_END();
     };
 
     virtual ResumableResult<void> 
-    onGSA() {
+    onGSA(GSA gsa) {
         RF_BEGIN();
         RF_END();
     };
@@ -42,14 +42,20 @@ private:
     MessageBuffer<82> message;
     IODeviceWrapper<Uart, modm::IOBuffer::BlockIfFull> uart;
     
-    void
+    ResumableResult<void>
     parse();
 
-    void
+    ResumableResult<void>
     parseRMC();
 
-    void
+    ResumableResult<void>
     parseGSA();
+
+    double
+    parseGeoCoordinate(char* field);
+
+    double
+    parseOrientation(char* field, double geoCoordinate);
 
 };
 }

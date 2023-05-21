@@ -28,7 +28,7 @@ public:
     maxSize();
 
 private:
-    char data[N];
+    char data[N + 1];
     uint8_t size;
 };
 

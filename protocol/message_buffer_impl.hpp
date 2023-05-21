@@ -1,4 +1,3 @@
-#include "message_buffer.hpp"
 /* Copyright (c) 2023, Lucas Mösch
  * All Rights Reserved.
  */
@@ -12,6 +11,7 @@ MessageBuffer<N>::MessageBuffer()
 template <uint8_t N>
 inline void MessageBuffer<N>::clear()
 {
+    memset(data, 0, N);
     size = 0;
 }
 
