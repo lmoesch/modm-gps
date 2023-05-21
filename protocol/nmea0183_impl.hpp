@@ -101,7 +101,7 @@ NMEA0183<Uart>::parseRMC()
     field = strchr(field + 1, ',') + 1;
     rmc.date = (*field == ',') ? 0 : atoi(field);
 
-    RF_CALL(onRMC())
+    RF_CALL(onRMC());
 
     RF_END();
 }
@@ -117,7 +117,7 @@ NMEA0183<Uart>::parseGSA()
 template <class Uart>
 double NMEA0183<Uart>::parseGeoCoordinate(char *field)
 {
-    double value = strtod(p, &p);
+    double value = strtod(field, &field);
     uint8_t degree = (int) (value / 100);
     double minutes = (value - 100 * degree);
 
