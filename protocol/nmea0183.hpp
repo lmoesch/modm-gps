@@ -13,19 +13,17 @@
 #include "message_buffer.hpp"
 #include "nmea0183_definitions.hpp"
 
-namespace modm
-{
-
+using namespace modm;
 template <class Uart>
-class NMEA0183: public nmea0183, protected NestedResumable<2>
+class NMEA0183: public nmea0183, protected NestedResumable<3>
 {
 public:
 	NMEA0183();
 
-protected:
     ResumableResult<void>
     update();
 
+protected:
     virtual ResumableResult<void>
     onRMC(RMC rmc) {
         RF_BEGIN();
@@ -58,7 +56,7 @@ private:
     parseOrientation(char* field, double geoCoordinate);
 
 };
-}
+
 
 #include "nmea0183_impl.hpp"
 

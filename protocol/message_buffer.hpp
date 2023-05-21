@@ -13,6 +13,9 @@ template<uint8_t N>
 class MessageBuffer
 {
 public:
+    char data[N + 1];
+    uint8_t size;
+
     MessageBuffer();
 
     void
@@ -26,10 +29,6 @@ public:
 
     uint8_t
     maxSize();
-
-private:
-    char data[N + 1];
-    uint8_t size;
 };
 
 #include "message_buffer_impl.hpp"

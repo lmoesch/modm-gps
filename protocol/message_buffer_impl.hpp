@@ -1,3 +1,4 @@
+#include "message_buffer.hpp"
 /* Copyright (c) 2023, Lucas Mösch
  * All Rights Reserved.
  */

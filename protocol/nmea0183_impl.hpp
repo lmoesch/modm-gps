@@ -2,9 +2,6 @@
  * All Rights Reserved.
  */
 // ----------------------------------------------------------------------------
-namespace modm
-{
-
 template <typename Uart>
 NMEA0183<Uart>::NMEA0183()
 {
@@ -15,7 +12,7 @@ template <typename Uart>
 ResumableResult<void>
 NMEA0183<Uart>::update()
 {
-    uint8_t c;
+    char c;
 
     RF_BEGIN();
 
@@ -28,7 +25,7 @@ NMEA0183<Uart>::update()
 
         message += c;
 
-        if(c == '\r' || c== '\n') {
+        if(c == '\r' || c == '\n') {
             RF_CALL(parse());
             message.clear();
         }
@@ -42,8 +39,8 @@ ResumableResult<void>
 NMEA0183<Uart>::parse()
 {
     RF_BEGIN();
-
-    // Check for RMC
+ 
+    //Check for RMC
     if (strncmp((message.data + 3), "RMC", 3) == 0) {
         RF_CALL(parseRMC());
     } 
@@ -60,10 +57,10 @@ template <class Uart>
 ResumableResult<void>
 NMEA0183<Uart>::parseRMC()
 {
-    RF_BEGIN();
-
     char* field = message.data;
     RMC rmc;
+
+    RF_BEGIN();
 
     // Time
     field = strchr(field, ',') + 1;
@@ -71,7 +68,7 @@ NMEA0183<Uart>::parseRMC()
 
     // Status
     field = strchr(field, ',') + 1;
-    rmc.status = (*field == ',') ? 0 : field;
+    rmc.status = (*field == ',') ? 0 : *field;
 
     // Latitude
     field = strchr(field, ',') + 1;
@@ -101,7 +98,7 @@ NMEA0183<Uart>::parseRMC()
     field = strchr(field + 1, ',') + 1;
     rmc.date = (*field == ',') ? 0 : atoi(field);
 
-    RF_CALL(onRMC());
+    RF_CALL(onRMC(rmc));
 
     RF_END();
 }
@@ -135,6 +132,4 @@ double NMEA0183<Uart>::parseOrientation(char *field, double geoCoordinate)
     } else {
         return 1;
     }
-}
-
 }

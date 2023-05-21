@@ -8,9 +8,6 @@
 
 #include <stdint.h>
 
-namespace modm
-{
-
 struct nmea0183
 {
     typedef struct {
@@ -35,7 +32,5 @@ struct nmea0183
         float vdop;
     } GSA;
 };
-
-}
 
 #endif
