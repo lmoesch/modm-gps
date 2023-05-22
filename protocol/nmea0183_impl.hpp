@@ -1,3 +1,4 @@
+#include "nmea0183.hpp"
 /* Copyright (c) 2023, Lucas Mösch
  * All Rights Reserved.
  */
@@ -12,24 +13,29 @@ template <typename Uart>
 ResumableResult<void>
 NMEA0183<Uart>::update()
 {
-    char c;
+    uint8_t c;
 
     RF_BEGIN();
 
-    RF_WAIT_UNTIL(uart.read(c));
+    RF_WAIT_UNTIL(Uart::read(c) || Uart::hasError());
 
-    do {
-        if (c == '$' || message.size > 81) {
-            message.clear();
-        }
+    if (Uart::hasError()) {
+        Uart::clearError();
+        message.clear();            
+        Board::usb::ioStream << "E"; 
+    } else {
+        do {
+            if (c == '$' || message.size > 81) {
+                message.clear();
+            }
+            message += (char) c;
 
-        message += c;
-
-        if(c == '\r' || c == '\n') {
-            RF_CALL(parse());
-            message.clear();
-        }
-    } while(uart.read(c));
+            if(c == '\r' || c == '\n') {
+                RF_CALL(parse());
+                message.clear();
+            }
+        } while(Uart::read(c));
+    }
 
     RF_END();
 }
@@ -72,27 +78,27 @@ NMEA0183<Uart>::parseRMC()
 
     // Latitude
     field = strchr(field, ',') + 1;
-    rmc.latitude = (*field == ',') ? 0 : parseGeoCoordinate(field);
+    rmc.latitude = (*field == ',') ? 0 : NMEA0183<Uart>::parseGeoCoordinate(field);
 
     // Lat orientation
     field = strchr(field, ',') + 1;
-    rmc.latitude = (*field == ',') ? rmc.latitude : rmc.latitude * parseOrientation(field, rmc.latitude);
+    rmc.latitude = (*field == ',') ? rmc.latitude : rmc.latitude * NMEA0183<Uart>::parseOrientation(field, rmc.latitude);
 
     // Longitude
     field = strchr(field, ',') + 1;
-    rmc.longitude = (*field == ',') ? 0 : parseGeoCoordinate(field);
+    rmc.longitude = (*field == ',') ? 0 : NMEA0183<Uart>::parseGeoCoordinate(field);
    
     // Longitude orientation
     field = strchr(field, ',') + 1;
-    rmc.longitude = (*field == ',') ? rmc.longitude : rmc.longitude * parseOrientation(field, rmc.longitude);
+    rmc.longitude = (*field == ',') ? rmc.longitude : rmc.longitude * NMEA0183<Uart>::parseOrientation(field, rmc.longitude);
 
     // Speed over ground
     field = strchr(field, ',') + 1;
-    rmc.speed = (*field == ',') ? 0 : strtof(field, &field);
+    rmc.speed = (*field == ',') ? 0 : NMEA0183<Uart>::strtof(field);
 
     // Course
     field = strchr(field, ',') + 1;
-    rmc.course = (*field == ',') ? 0 : strtof(field, &field);
+    rmc.course = (*field == ',') ? 0 : NMEA0183<Uart>::strtof(field);
 
     // Date stamp
     field = strchr(field + 1, ',') + 1;
@@ -114,7 +120,7 @@ NMEA0183<Uart>::parseGSA()
 template <class Uart>
 double NMEA0183<Uart>::parseGeoCoordinate(char *field)
 {
-    double value = strtod(field, &field);
+    double value = NMEA0183<Uart>::strtod(field);
     uint8_t degree = (int) (value / 100);
     double minutes = (value - 100 * degree);
 
@@ -132,4 +138,94 @@ double NMEA0183<Uart>::parseOrientation(char *field, double geoCoordinate)
     } else {
         return 1;
     }
+}
+
+template <class Uart>
+double NMEA0183<Uart>::strtod(char *str)
+{
+    double result = 0.0;
+    double fraction = 0.1;
+    bool negative = false;
+
+    // Handle negative sign
+    if (*str == '-')
+    {
+        negative = true;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Parse digits before decimal point
+    while (isdigit(*str))
+    {
+        result = (result * 10.0) + (*str - '0');
+        str++;
+    }
+
+    // Parse digits after decimal point
+    if (*str == '.')
+    {
+        str++;
+
+        while (isdigit(*str))
+        {
+            result += (*str - '0') * fraction;
+            fraction *= 0.1;
+            str++;
+        }
+    }
+
+    // Apply negative sign if necessary
+    if (negative)
+    {
+        result = -result;
+    }
+
+    return result;
+}
+
+template <class Uart>
+float NMEA0183<Uart>::strtof(char *str)
+{
+    float result = 0.0;
+    float fraction = 0.1;
+    bool negative = false;
+
+    // Handle negative sign
+    if (*str == '-')
+    {
+        negative = true;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Parse digits before decimal point
+    while (isdigit(*str))
+    {
+        result = (result * 10.0f) + (*str - '0');
+        str++;
+    }
+
+    // Parse digits after decimal point
+    if (*str == '.')
+    {
+        str++;
+
+        while (isdigit(*str))
+        {
+            result += (*str - '0') * fraction;
+            fraction *= 0.1f;
+            str++;
+        }
+    }
+
+    // Apply negative sign if necessary
+    if (negative)
+    {
+        result = -result;
+    }
+
+    return result;
 }

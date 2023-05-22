@@ -23,8 +23,8 @@ public:
     getGeoCoordinates(double& latitude, double& longitude);
 
 private:
-    double latitude;
-    double longitude;
+    volatile double latitude;
+    volatile double longitude;
 
     ResumableResult<void>
     onRMC(RMC rmc) override;

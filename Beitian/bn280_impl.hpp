@@ -2,7 +2,6 @@
  * All Rights Reserved.
  */
 // ----------------------------------------------------------------------------
-#include "board/board.hpp"
 namespace Beitian 
 {
 
@@ -16,15 +15,15 @@ void BN280<Uart>::getGeoCoordinates(double& latitude, double& longitude)
 {
     latitude = this->latitude;
     longitude = this->longitude;
+
 }
 
 template <class Uart>
 ResumableResult<void> 
 BN280<Uart>::onRMC(RMC rmc)
 {
-    Board::usb::ioStream << rmc.latitude;
-
     RF_BEGIN();
+
     longitude = rmc.longitude;
     latitude = rmc.latitude;
 

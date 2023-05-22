@@ -8,14 +8,12 @@
 
 #include <cstring>
 
-#include <modm/io/iodevice_wrapper.hpp>
-
 #include "message_buffer.hpp"
 #include "nmea0183_definitions.hpp"
 
 using namespace modm;
 template <class Uart>
-class NMEA0183: public nmea0183, protected NestedResumable<3>
+class NMEA0183: public nmea0183, protected NestedResumable<5>
 {
 public:
 	NMEA0183();
@@ -38,7 +36,6 @@ protected:
 
 private:
     MessageBuffer<82> message;
-    IODeviceWrapper<Uart, modm::IOBuffer::BlockIfFull> uart;
     
     ResumableResult<void>
     parse();
@@ -49,11 +46,17 @@ private:
     ResumableResult<void>
     parseGSA();
 
-    double
+    static double
     parseGeoCoordinate(char* field);
 
-    double
+    static double
     parseOrientation(char* field, double geoCoordinate);
+
+    static double
+    strtod(char* str);
+
+    static float
+    strtof(char* str);
 
 };
 
