@@ -14,20 +14,17 @@ namespace Beitian
 {
 
 template <class Uart>
-class BN280 : public NMEA0183<Uart>, protected nmea0183
+class BN280 : public NMEA0183<Uart>
 {
 public:
-    BN280();
-
-    void
-    getGeoCoordinates(double& latitude, double& longitude);
-
-private:
     volatile double latitude;
     volatile double longitude;
 
+    BN280();
+
+private:
     ResumableResult<void>
-    onRMC(RMC rmc) override;
+    onRMC(NMEA0183<Uart>::RMC rmc) override;
 };
 
 }

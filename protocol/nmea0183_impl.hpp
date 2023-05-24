@@ -159,7 +159,7 @@ double NMEA0183<Uart>::strtod(char *str)
     // Parse digits before decimal point
     while (isdigit(*str))
     {
-        result = (result * 10.0) + (*str - '0');
+        result = (result * (double) 10.0) + (*str - '0');
         str++;
     }
 
@@ -171,7 +171,7 @@ double NMEA0183<Uart>::strtod(char *str)
         while (isdigit(*str))
         {
             result += (*str - '0') * fraction;
-            fraction *= 0.1;
+            fraction *= (double) 0.1;
             str++;
         }
     }

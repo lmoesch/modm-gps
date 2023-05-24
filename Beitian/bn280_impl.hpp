@@ -11,16 +11,8 @@ BN280<Uart>::BN280()
 }
 
 template <class Uart>
-void BN280<Uart>::getGeoCoordinates(double& latitude, double& longitude)
-{
-    latitude = this->latitude;
-    longitude = this->longitude;
-
-}
-
-template <class Uart>
 ResumableResult<void> 
-BN280<Uart>::onRMC(RMC rmc)
+BN280<Uart>::onRMC(NMEA0183<Uart>::RMC rmc)
 {
     RF_BEGIN();
 
